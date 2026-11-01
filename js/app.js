@@ -32,6 +32,7 @@
       case "vocab": nav = "learn"; CG9.playVocab(main, p[1], p[2]); break;
       case "skill": nav = "learn"; CG9.playSkill(main, +p[1], p[2], +(p[3] || 0)); break;
       case "aireading": nav = "learn"; CG9.playAIReading(main, +p[1]); break;
+      case "practice": nav = "learn"; CG9.playPractice(main, +p[1], p[2]); break;
       case "exam": nav = "review"; CG9.playExam(main, +p[1]); break;
       case "quiz": nav = "review"; CG9.quickQuiz(main, +p[1]); break;
       case "mixed": nav = "review"; CG9.mixedReview(main, +p[1]); break;
@@ -45,7 +46,7 @@
     }
     setNav(nav);
     CG9.updateHud();
-    if (!/^(play|vocab|skill|exam|quiz|mixed|mistakes)$/.test(p[0] || "")) window.scrollTo(0, 0);
+    if (!/^(play|vocab|skill|practice|exam|quiz|mixed|mistakes)$/.test(p[0] || "")) window.scrollTo(0, 0);
   }
 
   /* ===================== HOME ===================== */
@@ -171,6 +172,12 @@
         (sp.reading || []).forEach(function (r, i) { card("#/skill/" + n + "/reading/" + i, "📖", "Đọc hiểu " + (i + 1), esc(r.title), "skill-" + n + "-reading-" + i); });
         if (sp.writing && sp.writing.length) card("#/skill/" + n + "/writing", "✍️", "Viết đoạn văn", sp.writing.length + " đề · AI chấm bài", "skill-" + n + "-writing");
       } else body.appendChild(el("p", "muted", "Nội dung kỹ năng của Unit này đang được cập nhật."));
+      if (CG9.practice[n]) {
+        CG9.PRACTICE_PARTS.forEach(function (k) {
+          var m = CG9.PRACTICE_NAMES[k];
+          if (CG9.practice[n][k]) card("#/practice/" + n + "/" + k, m.icon, m.name, m.desc, "prac-" + n + "-" + k);
+        });
+      }
       card("#/aireading/" + n, "🤖", "Bài đọc mới (AI)", "AI soạn bài đọc cùng chủ đề + câu hỏi", null);
       card("#/story", "📕", "Truyện phiêu lưu AI", "Đọc truyện có tranh dùng từ vựng Unit " + n, null);
       body.appendChild(grid);
@@ -470,7 +477,7 @@
     var rb = el("button", "btn danger", "Xoá tiến độ");
     rb.addEventListener("click", function () { if (confirm("Xoá TOÀN BỘ tiến độ học tập? Không thể hoàn tác!")) { CG9.resetState(); CG9.Awards.applyTheme(); CG9.toast("Đã xoá tiến độ."); location.hash = "#/"; } });
     danger.appendChild(rb); main.appendChild(danger);
-    main.appendChild(el("p", "muted center", "Learning Cambridge Global 9 · " + CG9.lessons.length + " bài học · " + Object.keys(CG9.exams).length + " đề kiểm tra · " + Object.keys(CG9.skills).length + " gói kỹ năng"));
+    main.appendChild(el("p", "muted center", "Learning Cambridge Global 9 · " + CG9.lessons.length + " bài học · " + Object.keys(CG9.exams).length + " đề kiểm tra · " + Object.keys(CG9.skills).length + " gói kỹ năng · " + Object.keys(CG9.practice).length + " gói luyện thêm"));
   }
 
   /* ===================== boot ===================== */

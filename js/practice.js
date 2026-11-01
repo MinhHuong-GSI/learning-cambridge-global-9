@@ -70,6 +70,10 @@
     });
     var sp = CG9.skills[unit];
     if (sp) ["pron", "wordform", "sentences"].forEach(function (k) { ((sp[k] || {}).items || []).forEach(function (it) { pool.push(it); }); });
+    var pp = CG9.practice[unit];
+    if (pp) PRACTICE_PARTS.forEach(function (k) {
+      (pp[k] || []).forEach(function (sec) { sec.items.forEach(function (it) { if (CG9.isScored(it)) pool.push(it); }); });
+    });
     // de-duplicate identical questions
     var seen = {};
     pool = pool.filter(function (it) { var h = CG9.hash(JSON.stringify([it.kind, it.q, it.s, it.word, it.clue, it.answer])); if (seen[h]) return false; seen[h] = 1; return true; });
@@ -81,11 +85,13 @@
   CG9.balancedSample = function (pool, n) {
     var byTag = {};
     CG9.shuffle(pool).forEach(function (it) { var t = CG9.tagOf(it); (byTag[t] = byTag[t] || []).push(it); });
-    var tags = Object.keys(byTag), out = [], i = 0, matches = 0;
+    var tags = Object.keys(byTag), out = [], i = 0, big = {};
     while (out.length < n && tags.some(function (t) { return byTag[t].length; })) {
       var t = tags[i++ % tags.length], it = byTag[t].shift();
       if (!it) continue;
-      if (it.kind === "match") { if (matches >= 1) continue; matches++; it = { kind: "match", pairs: CG9.sample(it.pairs, Math.min(5, it.pairs.length)), tag: it.tag }; }
+      // long items (matching, cloze texts, headings) at most once each per quiz
+      if (/^(match|cloze|headings)$/.test(it.kind)) { if (big[it.kind]) continue; big[it.kind] = 1; }
+      if (it.kind === "match") it = { kind: "match", pairs: CG9.sample(it.pairs, Math.min(5, it.pairs.length)), tag: it.tag };
       out.push(it);
     }
     return CG9.shuffle(out);
@@ -110,6 +116,7 @@
       if (sec.wordbank) { var wb = el("div", "wordbank"); sec.wordbank.forEach(function (w) { wb.appendChild(el("span", "", w)); }); box.appendChild(wb); }
       if (sec.theoryHtml) box.appendChild(el("div", "theory", sec.theoryHtml));
       sec.items.forEach(function (it) {
+        if (sec.tag && !it.tag && CG9.isScored(it)) it.tag = sec.tag;
         if (CG9.isScored(it)) act.add(box, it, ++n); else act.add(box, it);
       });
       root.appendChild(box);
@@ -157,13 +164,13 @@
     var pool = CG9.balancedSample(CG9.poolOf(u1), 16).concat(CG9.balancedSample(CG9.poolOf(u2), 16));
     var bykind = { choice: [], typed: [], build: [] };
     pool.forEach(function (it) {
-      if (/^(mcq|choice2|tf|classify|pron|stress|match)$/.test(it.kind)) bykind.choice.push(it);
-      else if (/^(order|rewrite)$/.test(it.kind)) bykind.build.push(it);
+      if (/^(mcq|choice2|tf|classify|pron|stress|match|multi|tapword)$/.test(it.kind)) bykind.choice.push(it);
+      else if (/^(order|rewrite|seqorder)$/.test(it.kind)) bykind.build.push(it);
       else bykind.typed.push(it);
     });
     var sections = [
-      { title: "Phần 1 — Trắc nghiệm (Unit " + u1 + " + " + u2 + ")", items: bykind.choice },
-      { title: "Phần 2 — Điền từ, word form, chính tả", items: bykind.typed },
+      { title: "Phần 1 — Trắc nghiệm & tìm từ (Unit " + u1 + " + " + u2 + ")", items: bykind.choice },
+      { title: "Phần 2 — Điền từ, đọc điền khuyết, word form", items: bykind.typed },
       { title: "Phần 3 — Xây dựng & viết lại câu", items: bykind.build }
     ].filter(function (s) { return s.items.length; });
     var sp1 = CG9.skills[u1], sp2 = CG9.skills[u2];
@@ -194,12 +201,31 @@
     });
   };
 
+  /* ============ practice packs ("Luyện thêm") ============ */
+  var PRACTICE_PARTS = ["reading", "vocab", "grammar", "writing"];
+  CG9.PRACTICE_PARTS = PRACTICE_PARTS;
+  CG9.PRACTICE_NAMES = {
+    reading: { icon: "📖", name: "Đọc hiểu nâng cao", desc: "Điền khuyết, chọn tiêu đề, sắp xếp sự việc, tìm từ" },
+    vocab: { icon: "🔤", name: "Từ vựng mở rộng", desc: "Kết hợp từ, đồng/trái nghĩa, từ khác nhóm, ngữ cảnh" },
+    grammar: { icon: "⚙️", name: "Ngữ pháp nâng cao", desc: "Tìm & sửa lỗi, viết lại câu với từ khoá, chia động từ" },
+    writing: { icon: "✍️", name: "Viết đoạn ngắn", desc: "Nối câu, cấu trúc đoạn, sắp xếp đoạn, viết có hướng dẫn" }
+  };
+  CG9.playPractice = function (root, unit, part) {
+    var pp = CG9.practice[unit], meta = CG9.PRACTICE_NAMES[part];
+    if (!pp || !pp[part] || !meta) { root.innerHTML = "<p>Nội dung đang được cập nhật.</p>"; return; }
+    CG9.runSet(root, {
+      title: meta.icon + " " + meta.name + " — Unit " + unit, subtitle: CG9.unit(unit).title + " · " + meta.desc,
+      back: "#/unit/" + unit + "/skills", key: "prac-" + unit + "-" + part, unit: unit, kind: "practice-" + part,
+      sections: pp[part], retry: function () { CG9.playPractice(root, unit, part); }
+    });
+  };
+
   /* ============ unit exam ============ */
   CG9.playExam = function (root, unit) {
     var ex = CG9.exams[unit];
     if (!ex) { root.innerHTML = "<p>Chưa có bài kiểm tra cho Unit này.</p>"; return; }
     var startBox = el("div", "card examstart");
-    var scored = 0; ex.sections.forEach(function (s) { s.items.forEach(function (it) { if (CG9.isScored(it)) scored += it.kind === "match" ? it.pairs.length : 1; }); });
+    var scored = 0; ex.sections.forEach(function (s) { s.items.forEach(function (it) { scored += CG9.pointsOf(it); }); });
     var best = CG9.state.acts["exam-" + unit];
     root.innerHTML = "";
     startBox.innerHTML = "<a class='back' href='#/unit/" + unit + "'>⬅ Quay lại</a><div class='big-emoji'>📝</div><h1>" + esc(ex.title) + "</h1>" +

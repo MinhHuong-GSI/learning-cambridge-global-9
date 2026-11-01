@@ -16,7 +16,7 @@
   var CG9 = window.CG9 = {
     UNITS: UNITS,
     lessons: [], lessonById: {},
-    exams: {}, skills: {},
+    exams: {}, skills: {}, practice: {},
     addLesson: function (l) {
       if (CG9.lessonById[l.id]) return;
       var m = /Unit\s+\d\.(\d)\s+(.*)$/.exec(l.game.subtitle || "");
@@ -26,7 +26,8 @@
       CG9.lessons.push(l); CG9.lessonById[l.id] = l;
     },
     addExam: function (e) { CG9.exams[e.unit] = e; },
-    addSkillPack: function (p) { CG9.skills[p.unit] = p; }
+    addSkillPack: function (p) { CG9.skills[p.unit] = p; },
+    addPracticePack: function (p) { CG9.practice[p.unit] = p; }
   };
 
   CG9.unit = function (n) { return UNITS[n - 1]; };

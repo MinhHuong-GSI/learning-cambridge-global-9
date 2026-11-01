@@ -104,6 +104,7 @@
       var total = 0, done = 0, stars = 0, maxStars = 0;
       CG9.lessonsOf(unit).forEach(function (l) { var s = P.lessonStats(l); total += s.total; done += s.done; stars += s.stars; maxStars += s.maxStars; });
       var extra = ["exam-" + unit, "skill-" + unit + "-pron", "skill-" + unit + "-wordform", "skill-" + unit + "-sentences", "skill-" + unit + "-reading-0", "skill-" + unit + "-reading-1", "vocab-" + unit + "-quiz"];
+      if (CG9.practice[unit]) ["reading", "vocab", "grammar", "writing"].forEach(function (k) { extra.push("prac-" + unit + "-" + k); });
       extra.forEach(function (k) { total++; if (CG9.state.acts[k]) done++; });
       return { total: total, done: done, pct: total ? Math.round(done / total * 100) : 0, stars: stars, maxStars: maxStars, exam: CG9.state.acts["exam-" + unit] };
     }
@@ -128,6 +129,8 @@
     { id: "mixed", icon: "🔀", name: "Bậc thầy ôn tập", desc: "Đạt từ 80% một bài ôn tập mix 2 unit", test: function (s) { return [1, 3, 5, 7].some(function (n) { var a = s.acts["mixed-" + n]; return a && a.best >= 80; }); } },
     { id: "pron", icon: "🗣️", name: "Phát âm chuẩn", desc: "Đạt từ 80% một bài phát âm", test: function (s) { return unitsWith(function (n) { var a = s.acts["skill-" + n + "-pron"]; return a && a.best >= 80; }) >= 1; } },
     { id: "wordform", icon: "🧩", name: "Phù thuỷ từ loại", desc: "Đạt từ 80% một bài word form", test: function (s) { return unitsWith(function (n) { var a = s.acts["skill-" + n + "-wordform"]; return a && a.best >= 80; }) >= 1; } },
+    { id: "allround", icon: "🧭", name: "Toàn năng", desc: "Đạt từ 80% cả 4 phần Luyện thêm của một Unit", test: function (s) { return unitsWith(function (n) { return ["reading", "vocab", "grammar", "writing"].every(function (k) { var a = s.acts["prac-" + n + "-" + k]; return a && a.best >= 80; }); }) >= 1; } },
+    { id: "fixgrammar", icon: "🔍", name: "Thám tử ngữ pháp", desc: "Hoàn thành 3 bài Ngữ pháp nâng cao", test: function (s) { return unitsWith(function (n) { return s.acts["prac-" + n + "-grammar"]; }) >= 3; } },
     { id: "reader", icon: "📖", name: "Người đọc giỏi", desc: "Hoàn thành 5 bài đọc hiểu", test: function (s) { return Object.keys(s.acts).filter(function (k) { return /reading|aireading/.test(k); }).length >= 5; } },
     { id: "writer", icon: "✍️", name: "Cây bút nhỏ", desc: "Nhận AI chấm 3 bài viết", test: function (s) { return (s.counters || {}).aiWriting >= 3; } },
     { id: "story", icon: "📕", name: "Người kể chuyện", desc: "Tạo một câu chuyện phiêu lưu", test: function (s) { return (s.counters || {}).stories >= 1; } },

@@ -17,7 +17,13 @@
   }
   CG9.Activity = Activity;
 
-  Activity.prototype.points = function (item) { return item.kind === "match" ? item.pairs.length : 1; };
+  CG9.pointsOf = function (item) {
+    if (item.kind === "match") return item.pairs.length;
+    if (item.kind === "cloze") return item.gaps.length;
+    if (item.kind === "headings") return item.paras.length;
+    return CG9.isScored(item) ? 1 : 0;
+  };
+  Activity.prototype.points = function (item) { return CG9.pointsOf(item); };
 
   Activity.prototype.add = function (parent, item, num) {
     var r = RENDER[item.kind];
@@ -292,7 +298,8 @@
       return h;
     },
     rewrite: function (w, it, act, n) {
-      var html = "<div class='qtext'>" + numLabel(n) + it.s + "</div><div class='rw-prompt'>→ " + esc(it.prompt) + "</div>";
+      var html = "<div class='qtext'>" + numLabel(n) + it.s + (it.key ? " <span class='keyword' title='Bắt buộc dùng từ này'>" + esc(it.key) + "</span>" : "") +
+        "</div><div class='rw-prompt'>→ " + esc(it.prompt) + "</div>";
       var prefill = String(it.prompt).split(/_{3,}|\.\.\.|…/)[0].trim();
       return inputItem(w, act, it, html, it.answers, { long: true, prefill: prefill ? prefill + " " : "", placeholder: "Viết lại cả câu…" });
     },
@@ -300,6 +307,7 @@
     match: function (w, it, act, n) { return act.mode === "exam" ? matchExam(w, it, act, n) : matchPractice(w, it, act, n); }
   };
   CG9.RENDERABLE = RENDER;
+  CG9._ui = { choiceItem: choiceItem, inputItem: inputItem, fb: fb, showExplain: showExplain, numLabel: numLabel };
 
   /* ============ sentence building (tap tiles) ============ */
   function orderItem(w, it, act, n) {

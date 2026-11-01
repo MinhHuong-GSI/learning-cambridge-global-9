@@ -24,6 +24,7 @@ rồi mở link trên điện thoại. Giao diện tự co giãn theo màn hình
 | 📖 Bài học | 80 bài (Unit 1.1 → 8.8, Tổng ôn tập, Kết nối & Nâng cao) lấy từ các file *Thỏ Quest*; mỗi bài có nhiều màn: nối từ, trắc nghiệm, điền từ, sắp xếp chữ, phân loại, chọn 1 trong 2, nghe/đọc, viết, nói, Boss |
 | 🃏 Từ vựng | 7 cách luyện: thẻ ghi nhớ (lặp lại ngắt quãng), chọn nghĩa, tìm từ tiếng Anh, điền từ vào câu, nghe & chọn, chính tả, lật hình ghép cặp |
 | 🎯 Kỹ năng | Mỗi unit: phát âm (âm + trọng âm, có đọc mẫu), word form (bảng họ từ + bài tập), cấu trúc câu (sắp xếp câu, viết lại câu), 2 bài đọc hiểu cùng chủ đề, viết đoạn văn |
+| 🧪 Luyện thêm | Mỗi unit 86 câu, 4 phần: **Đọc hiểu nâng cao** (đọc chọn từ & điền từ, chọn tiêu đề đoạn, sắp xếp sự việc, tìm từ trong bài), **Từ vựng mở rộng** (kết hợp từ chọn nhiều đáp án, từ khác nhóm, đồng/trái nghĩa, đoán nghĩa ngữ cảnh, điền từ cho sẵn), **Ngữ pháp nâng cao** (chạm tìm & sửa lỗi sai, viết lại câu với từ khoá, chọn tất cả câu đúng, chia động từ trong đoạn), **Viết đoạn ngắn** (nối câu, cấu trúc đoạn, sắp xếp đoạn, viết có dàn ý + kiểm tra từ bắt buộc + AI chấm) |
 | 🏁 Ôn tập | Bài kiểm tra tổng hợp từng unit (chuyển từ đề Word + đáp án, có hẹn giờ), Quiz nhanh 20 câu ngẫu nhiên, **Ôn tập mix sau mỗi 2 unit** (1–2, 3–4, 5–6, 7–8), Sổ lỗi sai |
 | 📕 Truyện AI | Nhập nhân vật + bối cảnh → AI viết cảnh mở đầu **có tranh minh hoạ**, dùng từ vựng/ngữ pháp của unit, kèm câu hỏi đọc hiểu và 3 lựa chọn đi tiếp (hoặc tự viết bằng tiếng Anh để AI sửa lỗi) |
 | 🤖 AI khác | Chấm & sửa bài viết, tạo bài đọc mới cùng chủ đề |
